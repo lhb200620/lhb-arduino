@@ -131,7 +131,7 @@ void loop(){
   arr="";
 }}
 ```
-![电路图如下](morse.png)
+![电路图如下](https://github.com/lhb200620/lhb-arduino/tree/master/7%E6%9C%885%E6%97%A5morseremake/morse.png)
 ## 第三天 小车的旋转以及七段数码管
 1. 了解更多的关于开源硬件的原件知识
 2. 基本掌握开源硬件的一些库函数
