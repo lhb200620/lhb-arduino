@@ -13,7 +13,6 @@
 * Precessing[官方网站](https://processing.org)
 * Fritzing[官方网站](https://fritzing.org)
 * VMware workstation——>ubuntu[官方网站](https://www.vmware.com/)
-* ![软件安装结果]（C/Users/李海斌/Desktop/截图/four.png）
 
 ## 第二天 MORSE电码
 1. 通过利用.h文件去实现相应的硬件效果
