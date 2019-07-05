@@ -1,3 +1,355 @@
-＃lhb-李海斌的Arduino的三次作业
-三个文件夹内的文件为最后汇总整理的每次作业
-之前的单独的文件没有合并
+# 李海斌的开源硬件实战总结
+
+版本号|日期|发布人
+---|---|---|
+0.01|2019/7/2|李海斌
+0.02|2019/7/3|李海斌
+0.03|2019/7/4|李海斌
+0.04|2019/7/5|李海斌
+
+## 第一天 软件安装与入门
+### 安装软件目录如下
+* Arduino[官方网站](https://www.arduino.cc/)
+* Precessing[官方网站](https://processing.org)
+* Fritzing[官方网站](https://fritzing.org)
+* VMware workstation——>ubuntu[官方网站](https://www.vmware.com/)
+* ![软件安装结果]（C/Users/李海斌/Desktop/截图/four.png）
+
+## 第二天 MORSE电码
+1. 通过利用.h文件去实现相应的硬件效果
+2. 利用[在线模拟器](https://www.tinkercad.com)去模拟实现相应的电路
+3. 借鉴模仿并且加以改进去实现自己的代码功能
+#### morse所有代码以及电路图片如下
+###### **morse.h文件**
+```c++
+#ifndef _MORSE_H
+#define _MORSE_H
+class Morse
+{
+  public:
+    Morse(int pin);
+    void dot();
+    void dash();
+    void c_space();
+    void w_space();
+  private:
+    int _pin;
+};
+#endif /*_MORSE_H*/
+```
+###### **morse.cpp文件**
+```c++
+#include "Arduino.h"
+#include "Morse.h"
+
+Morse::Morse(int pin)
+{
+  pinMode(pin,OUTPUT);
+  _pin=pin;
+}
+
+void Morse::dot()
+{
+  digitalWrite(_pin,HIGH);
+  delay(250);
+  digitalWrite(_pin,LOW);
+  delay(250);
+}
+
+void Morse::dash()
+{
+  digitalWrite(_pin,HIGH);
+  delay(1000);
+  digitalWrite(_pin,LOW);
+  delay(250);
+}
+
+void Morse::c_space()
+{
+  delay(750);
+}
+
+void Morse::w_space()
+{
+ delay(1750); 
+}
+```
+###### **arduino.ino**
+```c++
+#include<Morse.h>
+
+Morse morse(13);
+void setup(){
+  Serial.begin(9600);//设置波特率为9600
+}
+
+String arr="";
+int z=0;
+void loop(){
+  while(Serial.available()>0){
+  z=Serial.read();
+  switch(z)
+  {
+    case 97:arr="*-  ";break;//a
+    case 98:arr="-***";break;//b
+    case 99:arr="-*-*";break;//c
+    case 100:arr="-** ";break;//d
+    case 101:arr="*   ";break;//e
+    case 102:arr="**-*";break;//f
+    case 103:arr="--* ";break;//g
+    case 104:arr="****";break;//h
+    case 105:arr="**  ";break;//i
+    case 106:arr="*---";break;//j
+    case 107:arr="-*- ";break;//k
+    case 108:arr="*-**";break;//l
+    case 109:arr="--  ";break;//m
+    case 110:arr="-*  ";break;//n
+    case 111:arr="--- ";break;//o
+    case 112:arr="*--*";break;//p
+    case 113:arr="--*-";break;//q
+    case 114:arr="*-* ";break;//r
+    case 115:arr="*** ";break;//s
+    case 116:arr="-   ";break;//t
+    case 117:arr="**- ";break;//u
+    case 118:arr="***-";break;//v
+    case 119:arr="*-- ";break;//w
+    case 120:arr="-**-";break;//x
+    case 121:arr="-*--";break;//y
+    case 122:arr="--**";break;//z
+    case 32:arr="*-*-";break;//space
+    case 10:arr="----";break;//enter
+    default:break;}
+  int x=0;
+  for(x=0;x<4;x++){
+    if(arr[x]=='*')
+    morse.dot();
+    if(arr[x]=='-')
+    morse.dash();      
+    delay(10);         
+  }
+  delay(350);
+  arr="";
+}}
+```
+![电路图如下](morse.png)
+## 第三天 小车的旋转以及七段数码管
+1. 了解更多的关于开源硬件的原件知识
+2. 基本掌握开源硬件的一些库函数
+3. 基本懂得自己编写代码
+4. 查阅资料获取到了CD4511相关知识并且可以成功编写出七段数码管的相关显示
+5. 通过与同学合作共同调试，互相协助，发现问题解决问题
+
+#### 小车转向相关文件及电路图如图所示
+##### 小车转向ino
+```c++
+void setup()
+{
+  pinMode(13, OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(8,OUTPUT);
+  pinMode(11,OUTPUT);
+  pinMode(12,OUTPUT);
+  pinMode(6,OUTPUT);
+  pinMode(9,OUTPUT);
+  pinMode(10,OUTPUT);
+  Serial.begin(9600);
+}
+int income=0;
+void loop()
+{
+  if(Serial.available()>0)
+  {
+    income=Serial.read();
+    switch(income)
+    {
+      case'f':forward();break;
+        case'b':backward();break;
+        case'l':left();break;
+        case'r':right();break;
+        case's':stop();break;
+        default:break;
+    }
+  }
+}
+void forward()
+{
+  digitalWrite(5,LOW);
+  digitalWrite(6,HIGH);
+  digitalWrite(9,LOW);
+  digitalWrite(10,HIGH);
+  
+  digitalWrite(12,LOW);
+  digitalWrite(11,LOW);
+  digitalWrite(8,HIGH);
+  digitalWrite(13,HIGH);
+}
+
+void backward()
+{
+  digitalWrite(5,HIGH);
+  digitalWrite(6,LOW);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  
+  digitalWrite(12,HIGH);
+  digitalWrite(11,HIGH);
+  digitalWrite(13,LOW);
+  digitalWrite(8,LOW);
+}
+void right()
+{
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(9,LOW);
+  digitalWrite(10,HIGH);
+  
+  digitalWrite(11,HIGH);
+  digitalWrite(13,LOW);
+  digitalWrite(8,HIGH);
+  digitalWrite(12,LOW);
+}
+void left()
+{
+  digitalWrite(5,LOW);
+  digitalWrite(6,HIGH);
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  
+  digitalWrite(8,LOW);
+  digitalWrite(13,HIGH);
+  digitalWrite(11,LOW);
+  digitalWrite(12,HIGH);
+}
+void stop()
+{
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  
+  digitalWrite(12,LOW);
+  digitalWrite(13,LOW);
+  digitalWrite(11,LOW);
+  digitalWrite(8,LOW);
+}
+```
+![电路图如下](lhbcar.png)
+#### 七段数码管显示
+##### 七段数码管ino
+```c++
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
+  pinMode(2,OUTPUT);
+  pinMode(3,OUTPUT);
+  pinMode(4,OUTPUT);
+  
+  
+}
+void show(int n){
+  if(n==0)
+  {
+    digitalWrite(2,LOW);
+    digitalWrite(3,LOW);
+    digitalWrite(4,LOW);
+    digitalWrite(5,LOW);
+  }
+  else if(n==1)
+  {
+    digitalWrite(2,HIGH);
+    digitalWrite(3,LOW);
+    digitalWrite(4,LOW);
+    digitalWrite(5,LOW);
+  }
+  else if(n==2)
+  {
+    digitalWrite(2,LOW);
+    digitalWrite(3,HIGH);
+    digitalWrite(4,LOW);
+    digitalWrite(5,LOW);
+  }
+  else if(n==3)
+  {
+    digitalWrite(2,HIGH);
+    digitalWrite(3,HIGH);
+    digitalWrite(4,LOW);
+    digitalWrite(5,LOW);
+  }
+  else if(n==4)
+  {
+    digitalWrite(2,LOW);
+    digitalWrite(3,LOW);
+    digitalWrite(4,HIGH);
+    digitalWrite(5,LOW);
+  }
+  else if(n==5)
+  {
+    digitalWrite(2,HIGH);
+    digitalWrite(3,LOW);
+    digitalWrite(4,HIGH);
+    digitalWrite(5,LOW);
+  }
+  else if(n==6)
+  {
+    digitalWrite(2,LOW);
+    digitalWrite(3,HIGH);
+    digitalWrite(4,HIGH);
+    digitalWrite(5,LOW);
+  }
+  else if(n==7)
+  {
+    digitalWrite(2,HIGH);
+    digitalWrite(3,HIGH);
+    digitalWrite(4,HIGH);
+    digitalWrite(5,LOW);
+  }
+  else if(n==8)
+  {
+    digitalWrite(2,LOW);
+    digitalWrite(3,LOW);
+    digitalWrite(4,LOW);
+    digitalWrite(5,HIGH);
+  }else if(n==9)
+  {
+    digitalWrite(2,HIGH);
+    digitalWrite(3,LOW);
+    digitalWrite(4,LOW);
+    digitalWrite(5,HIGH);
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+   int income;
+   int x;
+   digitalWrite(6,LOW);
+   delay(10);
+  if(Serial.available()>0){
+    income=Serial.read();
+    switch(income)
+    {
+      case'0':x=0;break;
+      case'1':x=1;break;
+      case'2':x=2;break;
+      case'3':x=3;break;
+      case'4':x=4;break;
+      case'5':x=5;break;
+      case'6':x=6;break;
+      case'7':x=7;break;
+      case'8':x=8;break;
+      case'9':x=9;break;
+      default:break;
+    }
+    show(x);
+    Serial.print(x);
+    delay(1000);
+    x=0;
+  }
+}
+```
+![电路图如下](七段数码管.png)
+## 第四天 Markdowm编写文件
+1. 通过查阅相关博客等，基本了解了Markdowm文件的相关编写语法
+2. 利用Markdowm去编写课程的的相关学习报告
